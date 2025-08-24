@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Page</title>
+  <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+        color: #0056b3;
+        text-align: center;
+    }
+    p.success {
+        color: green;
+        font-weight: bold;
+        text-align: center;
+        background: #e6ffe6;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    p.error {
+        color: red;
+        font-weight: bold;
+        text-align: center;
+        background: #ffe6e6;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    input[type="text"] {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    button {
+        padding: 10px 15px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>URL Shortener</h1>
+    <% if (locals.id) { %>
+      <p class="success">URL Generated: <a href="/url/<%= id %>" target="_blank">http://localhost:8000/url/<%= id %></a></p>
+    <% } %>
+    <% if (locals.error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+
+    <form method="post" action="/url">
+      <label>Enter your Original URL:</label>
+      <input type="text" name="url" placeholder="http://example.com" required>
+      <button type="submit">Generate</button>
+    </form>
+    
+    <div>
+      <% if (locals.urls && urls.length > 0) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>ShortID</th>
+              <th>Redirect</th>
+              <th>Clicks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% urls.forEach((url, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><a href="<%= url.redirectURL %>" target="_blank"><%= url.shortId %></a></td>
+                <td><%= url.redirectURL %></td>
+                <td><%= url.visitHistory.length %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else if (locals.urls && urls.length === 0) { %>
+        <p style="text-align: center;">No URLs have been generated yet.</p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

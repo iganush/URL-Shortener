@@ -1,0 +1,13 @@
+# Node.js
+# Node modules
+/node_modules
+npm-debug.log
+.DS_Store
+
+# Environment variables
+.env
+
+# Other files
+build/
+dist/
+coverage/
