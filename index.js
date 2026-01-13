@@ -1,32 +1,41 @@
-const express = require('express');
-const { connectToMongoDB } = require('./connect.js');
-require('dotenv').config();
-const urlRoute = require('./routes/url.js');
-const staticRoute = require('./routes/url.js');
-const path = require('path');
-const app = express();
-const PORT = 8000;
-const dbUrl = process.env.MONGODB_URI;
-// Connect to MongoDB
-connectToMongoDB(dbUrl)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+import express from "express";
+import dotenv from "dotenv";
+import urlRouter from "./routes/url.js";
+import ConnectionDB from "./connect.js";
+import URL from "./models/url.js";
 
-// Middleware to parse incoming request bodies
-app.use(express.urlencoded({ extended: true }));
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 8000;
+const MONGODB = process.env.MONGODB_URL;
+
+ConnectionDB(MONGODB)
+  .then(() => console.log("DB Server Started"))
+  .catch((err) => console.log(err));
+
 app.use(express.json());
 
-// Setting the view engine to EJS
-app.set("view engine", "ejs");
-app.set('views', path.resolve('./views'));
+// API routes
+app.use("/url", urlRouter);
 
-// Routes
-// This sends all API-related calls for URLs to the urlRoute.
-app.use('/url', urlRoute);
-// This sends all static pages (like the homepage) to the staticRoute.
-app.use('/', staticRoute);
+// Redirect route
+app.get("/:shortId", async (req, res) => {
+  const { shortId } = req.params;
 
-// Start server
+  const entry = await URL.findOneAndUpdate(
+    { shortId },
+    { $push: { visitHistory: { timestamp: Date.now() } } },
+    { new: true }
+  );
+
+  if (!entry) {
+    return res.status(404).send("Short URL not found");
+  }
+
+  res.redirect(entry.redirectURL);
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🚀 Server started at PORT ${PORT}`);
 });
