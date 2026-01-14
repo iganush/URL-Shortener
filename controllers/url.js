@@ -14,6 +14,7 @@ export async function handleGenerateShortUrl(req, res) {
     shortId,
     redirectURL: url,
     visitHistory: [],
+    createdBy:req.user._id,
   });
 
 
